@@ -37,36 +37,3 @@ class IMAPReader:
     email_body = message.get_body(preferencelist=('html', 'plain')).as_string()
     body = email_body.split('\n\n', 1)[1]
     return body
-
-
-
-def main():
-  email_id = "qatest49@outlook.com"
-  email_pass = "u3sPzZQuYqFbnes"
-  email_host = "outlook.office365.com"
-
-  reader = IMAPReader(email_id=email_id, email_password=email_pass, email_host=email_host)
-  messages = reader.get_mail()
-  
-  for message in messages:
-    body = reader.get_email_body(message)
-    body = body.split('\n\n', 1)[1]
-    # body = ''.join(body)
-
-    print(f"From      : {message.get('From')}")
-    print(f"To        : {message.get('To')}")
-    print(f"Date      : {message.get('Date')}")
-    print(f"Subject   : {message.get('Subject')}")
-    print(f"Body      : {body}")
-    
-    
-    # for part in message.walk():
-    #   if part.get_content_type() == "text/plain": ## Only Printing Text of mail.
-    #       body_lines = part.as_string().split("\n")
-    #       print("\n".join(body_lines))
-  
-  reader.close()
-  
-
-if __name__ == '__main__':
-  main()

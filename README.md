@@ -20,5 +20,5 @@ Service to retrieve emails via HTTP methods
 `set EMAIL_PASS=<password>`  
 `set EMAIL_HOST=<imap.gmail.com>`  
 
-2. Start the service
+2. Start the service  
 `venv/bin/python app.py`  
