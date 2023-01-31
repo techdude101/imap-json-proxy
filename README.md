@@ -15,7 +15,7 @@ venv/bin/pip install -r requirements.txt
 
 ## Start the service
 
-1. Set environment variables
+1. Set environment variables  
 `set EMAIL_ID=<email@host.domain>`  
 `set EMAIL_PASS=<password>`  
 `set EMAIL_HOST=<imap.gmail.com>`  
