@@ -4,10 +4,10 @@ Service to retrieve emails via HTTP methods
 
 - [x] Get all emails  
 - [x] Get first (latest) email  
-- [ ] Get first x (latest x number of) emails  
-- [ ] Get emails between date and time range  
-- [ ] Search for emails by subject  
-- [ ] Search for emails by body content  
+- [x] Get first x (latest x number of) emails  
+- [x] Get emails from specified date until now
+- [x] Search for emails by subject  
+- [x] Search for emails by body content  
 
 ## Setup
 `python -m venv venv`  
