@@ -10,8 +10,8 @@ Service to retrieve emails via HTTP methods
 - [ ] Search for emails by body content  
 
 ## Setup
-python -m venv venv
-venv/bin/pip install -r requirements.txt
+`python -m venv venv`  
+`venv/bin/pip install -r requirements.txt`  
 
 ## Start the service
 
