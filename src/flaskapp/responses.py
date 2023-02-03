@@ -4,7 +4,7 @@ def generate_unauthorized():
   message = jsonify(message='Unauthorized')
   return make_response(message, 401)
 
-def generate_created(data):
+def generate_created():
   message = jsonify(message='Created')
   return make_response(message, 201)
 

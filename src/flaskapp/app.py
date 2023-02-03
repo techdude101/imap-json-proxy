@@ -28,7 +28,7 @@ def get_latest():
   date = message.get('Date')
   email_from = message.get('From')
   email_to = message.get('To')
-  email_body = reader.get_email_body(message)
+  email_body = reader.get_email_body(message, format='plain')
 
   reader.close()
   
@@ -51,7 +51,7 @@ def get_all():
     date = message.get('Date')
     email_from = message.get('From')
     email_to = message.get('To')
-    email_body = reader.get_email_body(message)
+    email_body = reader.get_email_body(message, format='plain')
     message_dict = {
     'to': email_to,
     'from': email_from,
@@ -82,7 +82,7 @@ def get_last_n_messages():
     date = message.get('Date')
     email_from = message.get('From')
     email_to = message.get('To')
-    email_body = reader.get_email_body(message)
+    email_body = reader.get_email_body(message, format='plain')
     message_dict = {
     'to': email_to,
     'from': email_from,
@@ -117,7 +117,7 @@ def search_by():
     date = message.get('Date')
     email_from = message.get('From')
     email_to = message.get('To')
-    email_body = reader.get_email_body(message)
+    email_body = reader.get_email_body(message, format='plain')
     message_dict = {
     'to': email_to,
     'from': email_from,
