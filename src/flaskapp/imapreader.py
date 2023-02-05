@@ -39,6 +39,9 @@ class IMAPReader:
 
     Returns:
       Tuple of response code and count of emails in mailbox
+
+    Raises:
+      imaplib.IMAP4.error: Exception raised on any errors.
     """
     response_code, mail_count = self.imap4_ssl.select(mailbox=mailbox_name, readonly=True)
     return (response_code, mail_count)
@@ -73,6 +76,9 @@ class IMAPReader:
     
     Returns:
       Email body as a string
+
+    Raises:
+      AttributeError: 
     """
     message_type_is_valid = isinstance(message, email.message.EmailMessage)
     if not message_type_is_valid:
@@ -167,6 +173,8 @@ class IMAPReader:
     """
     messages = []
 
+    # Sample response -> ('OK', [b'1 2 3 4 5'])
+    # response_code, mail_ids = ('OK', [b'1 2 3 4 5'])
     for mail_id in mail_ids[0].decode('utf-8').split():
       response_code, mail_data = self.imap4_ssl.fetch(mail_id, '(RFC822)')
       message = email.message_from_bytes(mail_data[0][1], policy=default_policy)
