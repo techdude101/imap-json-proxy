@@ -2,8 +2,11 @@ import unittest
 import os
 import email
 import pytest
-from src.flaskapp.imapreader import IMAPReader
 from email.policy import default as default_policy
+from unittest.mock import patch
+
+# App imports
+from src.flaskapp.imapreader import IMAPReader
 
 class TestImapReader(object):
   reader = IMAPReader()

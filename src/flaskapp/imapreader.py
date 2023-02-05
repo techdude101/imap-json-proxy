@@ -22,14 +22,14 @@ class IMAPReader:
     Raises:
       IMAP4.error: Exception raised on any errors.
     """
-    self.mailbox = IMAP4_SSL(self.email_host, self.port)
-    response = self.mailbox.login(self.email_id, self.email_password)
+    self.imap4_ssl = IMAP4_SSL(self.email_host, self.port)
+    response = self.imap4_ssl.login(self.email_id, self.email_password)
     return response
 
   def close(self):
     """Logout and close the connection to the IMAP server"""
-    self.mailbox.close()
-    self.mailbox.logout()
+    self.imap4_ssl.close()
+    self.imap4_ssl.logout()
 
   def select_mailbox_and_get_email_count_in_mailbox(self, mailbox_name: str = 'INBOX') -> tuple:
     """Selects a given mailbox and get the number of emails in the given mailbox
@@ -40,7 +40,7 @@ class IMAPReader:
     Returns:
       Tuple of response code and count of emails in mailbox
     """
-    response_code, mail_count = self.mailbox.select(mailbox=mailbox_name, readonly=True)
+    response_code, mail_count = self.imap4_ssl.select(mailbox=mailbox_name, readonly=True)
     return (response_code, mail_count)
   
 
@@ -57,7 +57,7 @@ class IMAPReader:
 
     self.select_mailbox_and_get_email_count_in_mailbox()
     
-    response_code, mail_ids = self.mailbox.search(None, 'ALL')
+    response_code, mail_ids = self.imap4_ssl.search(None, 'ALL')
 
     messages = self.fetch_emails(mail_ids)
 
@@ -97,7 +97,7 @@ class IMAPReader:
 
     self.select_mailbox_and_get_email_count_in_mailbox()
     
-    response_code, mail_ids = self.mailbox.search(None, 'SUBJECT', search_string)
+    response_code, mail_ids = self.imap4_ssl.search(None, 'SUBJECT', search_string)
 
     messages = self.fetch_emails(mail_ids)
 
@@ -118,7 +118,7 @@ class IMAPReader:
 
     self.select_mailbox_and_get_email_count_in_mailbox()
     
-    response_code, mail_ids = self.mailbox.search(None, 'BODY', search_string)
+    response_code, mail_ids = self.imap4_ssl.search(None, 'BODY', search_string)
     
     messages = self.fetch_emails(mail_ids)
 
@@ -144,7 +144,7 @@ class IMAPReader:
     # IMAP protocol - https://www.rfc-editor.org/rfc/rfc3501#section-6.4.4
     # Date format - https://www.rfc-editor.org/rfc/rfc2822#section-3.3
     # SEARCH SINCE 1-Feb-1994
-    response_code, mail_ids = self.mailbox.search(None, 'SINCE', formatted_start_date)
+    response_code, mail_ids = self.imap4_ssl.search(None, 'SINCE', formatted_start_date)
     messages = self.fetch_emails(mail_ids)
 
     # Reverse the list so emails are sorted newest to oldest
@@ -168,7 +168,7 @@ class IMAPReader:
     messages = []
 
     for mail_id in mail_ids[0].decode('utf-8').split():
-      response_code, mail_data = self.mailbox.fetch(mail_id, '(RFC822)')
+      response_code, mail_data = self.imap4_ssl.fetch(mail_id, '(RFC822)')
       message = email.message_from_bytes(mail_data[0][1], policy=default_policy)
       messages.append(message)
     return messages
