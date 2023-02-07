@@ -15,10 +15,13 @@ Service to retrieve emails via HTTP methods
 
 ## Start the service
 
-1. Set environment variables  
+1. Activate the virtual environment  
+`venv\Scripts\activate.bat`  
+2. Set environment variables  
 `set EMAIL_ID=<email@host.domain>`  
 `set EMAIL_PASS=<password>`  
 `set EMAIL_HOST=<imap.gmail.com>`  
 
-2. Start the service  
-`venv/bin/python app.py`  
+3. Start the service  
+`cd src\flaskapp`
+`uvicorn app:app`  
