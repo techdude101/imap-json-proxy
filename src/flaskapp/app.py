@@ -31,7 +31,7 @@ reader = IMAPReader(email_id=email_id, email_password=email_pass, email_host=ema
 
 @app.get('/')
 def index():
-    return json.dumps({'version': '1.0.0'})
+    return{'version': '1.0.0'}
 
 @app.get('/messages/latest')
 def get_latest():
@@ -46,13 +46,13 @@ def get_latest():
 
   reader.close()
   
-  return json.dumps({
+  return{
     'to': email_to,
     'from': email_from,
     'subject': subject,
     'date': date,
     'body': email_body
-    })
+    }
 
 @app.get('/messages/all')
 def get_all():
@@ -77,7 +77,7 @@ def get_all():
     messages_dict.append(message_dict)
   
   reader.close()
-  return json.dumps(messages_dict)
+  return messages_dict
 
 @app.get('/messages/last')
 def get_last_n_messages(count: int = 1): 
@@ -102,7 +102,7 @@ def get_last_n_messages(count: int = 1):
     messages_dict.append(message_dict)
   
   reader.close()
-  return json.dumps(messages_dict)
+  return messages_dict
 
 @app.get('/messages/search')
 def search_by(subject: Union[str, None] = None, 
@@ -157,4 +157,4 @@ def search_by(subject: Union[str, None] = None,
     }
     messages_dict.append(message_dict)
   reader.close()
-  return json.dumps(messages_dict)
+  return messages_dict
