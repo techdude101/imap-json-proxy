@@ -2,12 +2,13 @@
 # encoding: utf-8
 import json
 import os
-from flask import Flask, request
+from typing import Union
 
+from fastapi import FastAPI, HTTPException
 from imapreader import IMAPReader
 from responses import generate_bad_request
 
-app = Flask(__name__)
+app = FastAPI()
 
 
 email_id = os.environ['EMAIL_ID']
@@ -16,12 +17,13 @@ email_host = os.environ['EMAIL_HOST']
 
 reader = IMAPReader(email_id=email_id, email_password=email_pass, email_host=email_host)
 
-@app.route('/', methods=['GET'])
+@app.get('/')
 def index():
     return json.dumps({'version': '1.0.0'})
 
-@app.route('/messages/latest', methods=['GET'])
+@app.get('/messages/latest')
 def get_latest():
+  """Get the latest / most recent message in the mailbox"""
   reader.login()
   message = reader.get_mail()[0]
   subject = message.get('Subject')
@@ -40,9 +42,10 @@ def get_latest():
     'body': email_body
     })
 
-@app.route('/messages/all', methods=['GET'])
+@app.get('/messages/all')
 def get_all():
-  response = reader.login()
+  """Get all messages in the mailbox"""
+  _ = reader.login()
   messages = reader.get_mail()
 
   messages_dict = []
@@ -64,16 +67,10 @@ def get_all():
   reader.close()
   return json.dumps(messages_dict)
 
-@app.route('/messages/last', methods=['GET'])
-def get_last_n_messages():
-  count_unsanitized = request.args.get('count', None)
-  count = 1
-  try:
-    count = int(count_unsanitized)
-  except ValueError:
-    return generate_bad_request("count validation error")
-  
-  response = reader.login()
+@app.get('/messages/last')
+def get_last_n_messages(count: int = 1): 
+  """Get the last n most recent messages in the mailbox"""
+  _ = reader.login()
   messages = reader.get_mail()[:count]
 
   messages_dict = []
@@ -95,21 +92,42 @@ def get_last_n_messages():
   reader.close()
   return json.dumps(messages_dict)
 
-@app.route('/messages/search', methods=['GET'])
-def search_by():
-  subject_unsanitized = request.args.get('subject', None)
-  body_unsanitized = request.args.get('body', None)
-  datetime_unsanitized = request.args.get('datetime', None)
+@app.get('/messages/search')
+def search_by(subject: Union[str, None] = None, 
+    body: Union[str, None] = None, 
+    datetime: Union[str, None] = None):
+  """Search by subject, body or date"""
   
+  subject_unsanitized = subject
+  body_unsanitized = body
+  datetime_unsanitized = datetime
+
   reader.login()
+
+  parameter_count = 0
+  if subject_unsanitized != None:
+    parameter_count += 1
+
+  if body_unsanitized != None:
+    parameter_count += 1
+  
+  if datetime_unsanitized != None:
+    parameter_count += 1
+  
+  if parameter_count > 1:
+    raise HTTPException(status_code = 400, detail = "Too many paremeters received.")
+  
+  # Subject only
   if subject_unsanitized and not body_unsanitized and not datetime_unsanitized:
     messages = reader.get_emails_with_subject(subject_unsanitized)
+  # Body only
   elif body_unsanitized and not subject_unsanitized and not datetime_unsanitized:
     messages = reader.get_emails_with_body(body_unsanitized)
+  # Date / time only
   elif datetime_unsanitized and not subject_unsanitized and not body_unsanitized:
     messages = reader.get_emails_since_date(datetime_unsanitized)
   else:
-    return generate_bad_request("subject, body or datetime is required")
+    raise HTTPException(status_code = 400, detail = "subject, body or datetime is required")
 
   messages_dict = []
   for message in messages:
@@ -128,5 +146,3 @@ def search_by():
     messages_dict.append(message_dict)
   reader.close()
   return json.dumps(messages_dict)
-
-app.run(host='0.0.0.0')
