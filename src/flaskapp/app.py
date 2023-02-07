@@ -5,11 +5,23 @@ import os
 from typing import Union
 
 from fastapi import FastAPI, HTTPException
+from fastapi.openapi.utils import get_openapi
 from imapreader import IMAPReader
-from responses import generate_bad_request
 
 app = FastAPI()
 
+
+def my_schema():
+   openapi_schema = get_openapi(
+       title="IMAP to JSON API",
+       version="1.0",
+       description="Retrieve emails from an IMAP mail server",
+       routes=app.routes,
+   )
+   app.openapi_schema = openapi_schema
+   return app.openapi_schema
+
+app.openapi = my_schema
 
 email_id = os.environ['EMAIL_ID']
 email_pass = os.environ['EMAIL_PASS']

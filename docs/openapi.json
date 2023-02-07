@@ -1,0 +1,147 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "IMAP to JSON API",
+    "description": "Retrieve emails from an IMAP mail server",
+    "version": "1.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Index",
+        "operationId": "index__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/messages/latest": {
+      "get": {
+        "summary": "Get Latest",
+        "description": "Get the latest / most recent message in the mailbox",
+        "operationId": "get_latest_messages_latest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/messages/all": {
+      "get": {
+        "summary": "Get All",
+        "description": "Get all messages in the mailbox",
+        "operationId": "get_all_messages_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/messages/last": {
+      "get": {
+        "summary": "Get Last N Messages",
+        "description": "Get the last n most recent messages in the mailbox",
+        "operationId": "get_last_n_messages_messages_last_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": { "title": "Count", "type": "integer", "default": 1 },
+            "name": "count",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages/search": {
+      "get": {
+        "summary": "Search By",
+        "description": "Search by subject, body or date",
+        "operationId": "search_by_messages_search_get",
+        "parameters": [
+          {
+            "required": false,
+            "schema": { "title": "Subject", "type": "string" },
+            "name": "subject",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "title": "Body", "type": "string" },
+            "name": "body",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": { "title": "Datetime", "type": "string" },
+            "name": "datetime",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ValidationError" }
+          }
+        }
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": ["loc", "msg", "type"],
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] }
+          },
+          "msg": { "title": "Message", "type": "string" },
+          "type": { "title": "Error Type", "type": "string" }
+        }
+      }
+    }
+  }
+}
