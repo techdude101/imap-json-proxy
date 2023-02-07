@@ -23,5 +23,5 @@ Service to retrieve emails via HTTP methods
 `set EMAIL_HOST=<imap.gmail.com>`  
 
 3. Start the service  
-`cd src\flaskapp`
+`cd src\flaskapp`  
 `uvicorn app:app`  
