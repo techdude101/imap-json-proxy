@@ -25,3 +25,14 @@ Service to retrieve emails via HTTP methods
 3. Start the service  
 `cd src\flaskapp`  
 `uvicorn app:app`  
+
+
+## Tests
+Run tests with coverage  
+`coverage run -m pytest`  
+
+Generate coverage report  
+`coverage report`  
+
+Generate coverage HTML report  
+`coverage html`
