@@ -6,7 +6,7 @@ from typing import Union
 
 from fastapi import FastAPI, HTTPException
 from fastapi.openapi.utils import get_openapi
-from imapreader import IMAPReader
+from src.flaskapp.imapreader import IMAPReader
 
 app = FastAPI()
 
@@ -23,9 +23,15 @@ def my_schema():
 
 app.openapi = my_schema
 
-email_id = os.environ['EMAIL_ID']
-email_pass = os.environ['EMAIL_PASS']
-email_host = os.environ['EMAIL_HOST']
+try:
+  email_id = os.environ['EMAIL_ID']
+  email_pass = os.environ['EMAIL_PASS']
+  email_host = os.environ['EMAIL_HOST']
+except KeyError:
+  email_id = ""
+  email_pass = ""
+  email_host = ""
+
 
 reader = IMAPReader(email_id=email_id, email_password=email_pass, email_host=email_host)
 
