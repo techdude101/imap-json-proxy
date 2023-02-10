@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import os
+import sys
 from typing import Union
 
 from fastapi import FastAPI, HTTPException
 from fastapi.openapi.utils import get_openapi
 from imapreader import IMAPReader
+from helpers import email_messages_to_messages_dict
 
 app = FastAPI()
 
@@ -27,9 +29,7 @@ try:
   email_pass = os.environ['EMAIL_PASS']
   email_host = os.environ['EMAIL_HOST']
 except KeyError:
-  email_id = ""
-  email_pass = ""
-  email_host = ""
+  sys.exit("Missing required environment variables: EMAIL_ID, EMAIL_PASS and / or EMAIL_HOST")
 
 
 reader = IMAPReader(email_id=email_id, email_password=email_pass, email_host=email_host)
@@ -51,7 +51,7 @@ def get_latest():
 
   reader.close()
   
-  return{
+  return {
     'to': email_to,
     'from': email_from,
     'subject': subject,
@@ -65,21 +65,7 @@ def get_all():
   _ = reader.login()
   messages = reader.get_mail()
 
-  messages_dict = []
-  for message in messages:
-    subject = message.get('Subject')
-    date = message.get('Date')
-    email_from = message.get('From')
-    email_to = message.get('To')
-    email_body = reader.get_email_body(message, format='plain')
-    message_dict = {
-    'to': email_to,
-    'from': email_from,
-    'subject': subject,
-    'date': date,
-    'body': email_body
-    }
-    messages_dict.append(message_dict)
+  messages_dict = email_messages_to_messages_dict(reader, messages)
   
   reader.close()
   return messages_dict
@@ -90,21 +76,7 @@ def get_last_n_messages(count: int = 1):
   _ = reader.login()
   messages = reader.get_mail()[:count]
 
-  messages_dict = []
-  for message in messages:
-    subject = message.get('Subject')
-    date = message.get('Date')
-    email_from = message.get('From')
-    email_to = message.get('To')
-    email_body = reader.get_email_body(message, format='plain')
-    message_dict = {
-    'to': email_to,
-    'from': email_from,
-    'subject': subject,
-    'date': date,
-    'body': email_body
-    }
-    messages_dict.append(message_dict)
+  messages_dict = email_messages_to_messages_dict(reader, messages)
   
   reader.close()
   return messages_dict
@@ -119,8 +91,6 @@ def search_by(subject: Union[str, None] = None,
   body_unsanitized = body
   datetime_unsanitized = datetime
 
-  reader.login()
-
   parameter_count = 0
   if subject_unsanitized != None:
     parameter_count += 1
@@ -133,7 +103,9 @@ def search_by(subject: Union[str, None] = None,
   
   if parameter_count > 1:
     raise HTTPException(status_code = 400, detail = "Too many paremeters received.")
-  
+
+  reader.login()
+
   # Subject only
   if subject_unsanitized and not body_unsanitized and not datetime_unsanitized:
     messages = reader.get_emails_with_subject(subject_unsanitized)
@@ -146,20 +118,7 @@ def search_by(subject: Union[str, None] = None,
   else:
     raise HTTPException(status_code = 400, detail = "subject, body or datetime is required")
 
-  messages_dict = []
-  for message in messages:
-    subject = message.get('Subject')
-    date = message.get('Date')
-    email_from = message.get('From')
-    email_to = message.get('To')
-    email_body = reader.get_email_body(message, format='plain')
-    message_dict = {
-    'to': email_to,
-    'from': email_from,
-    'subject': subject,
-    'date': date,
-    'body': email_body
-    }
-    messages_dict.append(message_dict)
+  messages_dict = email_messages_to_messages_dict(reader, messages)
+
   reader.close()
   return messages_dict
