@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import json
 import os
 from typing import Union
 
 from fastapi import FastAPI, HTTPException
 from fastapi.openapi.utils import get_openapi
-from src.flaskapp.imapreader import IMAPReader
+from imapreader import IMAPReader
 
 app = FastAPI()
 
