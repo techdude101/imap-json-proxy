@@ -2,6 +2,7 @@
 # encoding: utf-8
 import os
 import sys
+import uvicorn
 from typing import Union
 
 from fastapi import FastAPI, HTTPException
@@ -122,3 +123,7 @@ def search_by(subject: Union[str, None] = None,
 
   reader.close()
   return messages_dict
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
