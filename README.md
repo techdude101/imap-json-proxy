@@ -38,5 +38,5 @@ Generate coverage HTML report
 `coverage html`
 
 ## Build
-Build exe
+Build exe  
 `pyinstaller -F -n imap-json-proxy --hidden-import fastapi src\flaskapp\app.py`  
