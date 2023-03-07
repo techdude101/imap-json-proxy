@@ -3,6 +3,8 @@
 import os
 import sys
 import uvicorn
+import logging
+import imaplib
 from typing import Union
 
 from fastapi import FastAPI, HTTPException
@@ -11,7 +13,6 @@ from imapreader import IMAPReader
 from helpers import email_messages_to_messages_dict
 
 app = FastAPI()
-
 
 def my_schema():
    openapi_schema = get_openapi(
@@ -42,7 +43,13 @@ def index():
 @app.get('/messages/latest')
 def get_latest():
   """Get the latest / most recent message in the mailbox"""
-  reader.login()
+  try:
+    reader.login()
+  except imaplib.IMAP4.error as error:
+    # Strip b'' from error message e.g. b'LOGIN failed.' becomes LOGIN failed.
+    error_message = str(error).replace("b'", "").replace("'", "")
+    raise HTTPException(status_code = 500, detail = f"Something went wrong ... {error_message}")
+  
   message = reader.get_mail()[0]
   subject = message.get('Subject')
   date = message.get('Date')
@@ -63,7 +70,12 @@ def get_latest():
 @app.get('/messages/all')
 def get_all():
   """Get all messages in the mailbox"""
-  _ = reader.login()
+  try:
+    reader.login()
+  except imaplib.IMAP4.error as error:
+    # Strip b'' from error message e.g. b'LOGIN failed.' becomes LOGIN failed.
+    error_message = str(error).replace("b'", "").replace("'", "")
+    raise HTTPException(status_code = 500, detail = f"Something went wrong ... {error_message}")
   messages = reader.get_mail()
 
   messages_dict = email_messages_to_messages_dict(reader, messages)
@@ -74,7 +86,12 @@ def get_all():
 @app.get('/messages/last')
 def get_last_n_messages(count: int = 1): 
   """Get the last n most recent messages in the mailbox"""
-  _ = reader.login()
+  try:
+    reader.login()
+  except imaplib.IMAP4.error as error:
+    # Strip b'' from error message e.g. b'LOGIN failed.' becomes LOGIN failed.
+    error_message = str(error).replace("b'", "").replace("'", "")
+    raise HTTPException(status_code = 500, detail = f"Something went wrong ... {error_message}")
   messages = reader.get_mail()[:count]
 
   messages_dict = email_messages_to_messages_dict(reader, messages)
@@ -105,7 +122,12 @@ def search_by(subject: Union[str, None] = None,
   if parameter_count > 1:
     raise HTTPException(status_code = 400, detail = "Too many paremeters received.")
 
-  reader.login()
+  try:
+    reader.login()
+  except imaplib.IMAP4.error as error:
+    # Strip b'' from error message e.g. b'LOGIN failed.' becomes LOGIN failed.
+    error_message = str(error).replace("b'", "").replace("'", "")
+    raise HTTPException(status_code = 500, detail = f"Something went wrong ... {error_message}")
 
   # Subject only
   if subject_unsanitized and not body_unsanitized and not datetime_unsanitized:
@@ -125,5 +147,18 @@ def search_by(subject: Union[str, None] = None,
   return messages_dict
 
 
+def main():
+  logging.basicConfig(
+    filename='flaskapp.log', 
+    datefmt='%Y-%m-%d %H:%M:%S', 
+    format='%(asctime)s %(levelname)s:%(message)s', 
+    level=logging.DEBUG
+    )
+  logging.info('Starting service')
+  
+  uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+
+  logging.info('Service stopped')
+
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+  main()

@@ -8,6 +8,8 @@ from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 from http import HTTPStatus
 
+import importlib
+
 from imapreader import IMAPReader
 from app import app
 
@@ -27,7 +29,7 @@ class TestApp(object):
     "detail": And(str)
   })
 
-
+  
   def test_read_index(self):
       response = self.client.get("/")
       assert response.status_code == HTTPStatus.OK
