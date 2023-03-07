@@ -38,7 +38,7 @@ reader = IMAPReader(email_id=email_id, email_password=email_pass, email_host=ema
 
 @app.get('/')
 def index():
-    return{'version': '1.0.0'}
+    return{'version': '0.1.3-alpha'}
 
 @app.get('/messages/latest')
 def get_latest():
