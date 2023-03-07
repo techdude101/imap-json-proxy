@@ -151,6 +151,9 @@ class IMAPReader:
 
     Returns:
       List of email.messages.Message
+
+    Raises:
+      ValueError: If invalid date / time string is provided.
     """
     messages = []
 

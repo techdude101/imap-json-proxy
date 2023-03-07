@@ -137,7 +137,10 @@ def search_by(subject: Union[str, None] = None,
     messages = reader.get_emails_with_body(body_unsanitized)
   # Date / time only
   elif datetime_unsanitized and not subject_unsanitized and not body_unsanitized:
-    messages = reader.get_emails_since_date(datetime_unsanitized)
+    try:
+      messages = reader.get_emails_since_date(datetime_unsanitized)
+    except ValueError as error:
+      raise HTTPException(status_code = 400, detail = "Invalid ISO 8601 string")  
   else:
     raise HTTPException(status_code = 400, detail = "subject, body or datetime is required")
 
