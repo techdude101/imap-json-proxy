@@ -8,6 +8,7 @@ import imaplib
 from typing import Union
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
 from imapreader import IMAPReader
 from helpers import email_messages_to_messages_dict
@@ -36,11 +37,63 @@ except KeyError:
 
 reader = IMAPReader(email_id=email_id, email_password=email_pass, email_host=email_host)
 
+responses = {
+    500: { 
+      "description": "Error detail",
+      "content": {
+        "application/json": {
+          "example": {"detail": "Something went wrong ... [AUTHENTICATIONFAILED] Invalid credentials (Failure)"}
+        }
+      }
+    }
+  }
+
+response_list_of_messages = {
+  200: {
+      "description": "Get latest email message",
+      "content": {
+        "application/json": {
+          "example": 
+            [ {
+              "to": "recipient1@example.com",
+              "from": "sender1@example.com",
+              "subject": "Email subject 1",
+              "date": "Wed, 15 Mar 2023 17:26:42 +0000",
+              "body": "Email body in plain text"
+            },
+            {
+              "to": "recipient2@example.com",
+              "from": "sender2@example.com",
+              "subject": "Email subject 2",
+              "date": "Wed, 15 Mar 2023 17:21:22 +0000",
+              "body": "Email body in plain text"
+            }
+            ]
+        }
+      },
+    },
+}
+
 @app.get('/')
 def index():
-    return{'version': '0.1.3-alpha'}
+    return{'version': '1.0.0-beta'}
 
-@app.get('/messages/latest')
+@app.get('/messages/latest', responses={**responses, 
+    200: {
+      "description": "Get latest email message",
+      "content": {
+        "application/json": {
+          "example": {
+              "to": "recipient@example.com",
+              "from": "sender@example.com",
+              "subject": "Email subject",
+              "date": "Wed, 15 Mar 2023 17:26:42 +0000",
+              "body": "Email body in plain text"
+          }
+        }
+      },
+    },
+})
 def get_latest():
   """Get the latest / most recent message in the mailbox"""
   try:
@@ -49,6 +102,7 @@ def get_latest():
     # Strip b'' from error message e.g. b'LOGIN failed.' becomes LOGIN failed.
     error_message = str(error).replace("b'", "").replace("'", "")
     raise HTTPException(status_code = 500, detail = f"Something went wrong ... {error_message}")
+  
   
   message = reader.get_mail()[0]
   subject = message.get('Subject')
@@ -67,7 +121,7 @@ def get_latest():
     'body': email_body
     }
 
-@app.get('/messages/all')
+@app.get('/messages/all', responses={**responses, **response_list_of_messages})
 def get_all():
   """Get all messages in the mailbox"""
   try:
@@ -83,7 +137,7 @@ def get_all():
   reader.close()
   return messages_dict
 
-@app.get('/messages/last')
+@app.get('/messages/last', responses={**responses, **response_list_of_messages})
 def get_last_n_messages(count: int = 1): 
   """Get the last n most recent messages in the mailbox"""
   try:
@@ -99,7 +153,7 @@ def get_last_n_messages(count: int = 1):
   reader.close()
   return messages_dict
 
-@app.get('/messages/search')
+@app.get('/messages/search', responses={**responses, **response_list_of_messages})
 def search_by(subject: Union[str, None] = None, 
     body: Union[str, None] = None, 
     datetime: Union[str, None] = None):
