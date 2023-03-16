@@ -33,7 +33,7 @@ class TestApp(object):
   def test_read_index(self):
       response = self.client.get("/")
       assert response.status_code == HTTPStatus.OK
-      assert response.json() == {"version": "1.0.0"}
+      assert response.json() == {"version": "1.0.0-beta"}
 
 
   def test_get_all_messages_returns_no_messages(self, monkeypatch: MonkeyPatch):
